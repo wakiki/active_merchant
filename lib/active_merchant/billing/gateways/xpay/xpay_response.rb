@@ -1,6 +1,6 @@
 module ActiveMerchant #:nodoc:
   module Billing #:nodoc:
-    class XPayResponse
+    class XpayResponse
       def error?
         @xml.root.get_elements('Response/OperationResponse/Result').first.text == '0'
       end

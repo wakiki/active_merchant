@@ -2,7 +2,7 @@ require File.dirname(__FILE__) + '/xpay/xpay_response'
 
 module ActiveMerchant #:nodoc:
   module Billing #:nodoc:
-    class XPayGateway < Gateway
+    class XpayGateway < Gateway
       cattr_accessor :site_reference, :certificate_path, :host, :port, :debug
       
       # The countries the gateway supports merchants from as 2 digit ISO country codes
@@ -208,11 +208,11 @@ module ActiveMerchant #:nodoc:
       def commit(action, money, parameters)
         if @@debug
           puts "request: #{post_data(action, parameters)}"
-          r = XPayResponse.new socket_request @@host, @@port, post_data(action, parameters)
+          r = XpayResponse.new socket_request @@host, @@port, post_data(action, parameters)
           puts "response: #{r.to_xml}"
           r
         else
-          XPayResponse.new socket_request @@host, @@port, post_data(action, parameters)
+          XpayResponse.new socket_request @@host, @@port, post_data(action, parameters)
         end
       end
 

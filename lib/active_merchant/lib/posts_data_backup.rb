@@ -1,38 +1,29 @@
 module ActiveMerchant #:nodoc:
-  class ConnectionError < ActiveMerchantError
-  end
-  
-  class RetriableConnectionError < ConnectionError
-  end
-  
   module PostsData  #:nodoc:
-    MAX_RETRIES = 3
-    OPEN_TIMEOUT = 60
-    READ_TIMEOUT = 60
-    
+
     def self.included(base)
       base.superclass_delegating_accessor :ssl_strict
       base.ssl_strict = true
-      
-      base.class_inheritable_accessor :pem_password
-      base.pem_password = false
       
       base.class_inheritable_accessor :retry_safe
       base.retry_safe = false
 
       base.superclass_delegating_accessor :open_timeout
-      base.open_timeout = OPEN_TIMEOUT
+      base.open_timeout = 60
 
       base.superclass_delegating_accessor :read_timeout
-      base.read_timeout = READ_TIMEOUT
+      base.read_timeout = 60
+      
+      base.superclass_delegating_accessor :logger
+      base.superclass_delegating_accessor :wiredump_device
     end
     
-    def ssl_get(url, headers={})
-      ssl_request(:get, url, nil, headers)
+    def ssl_get(endpoint, headers={})
+      ssl_request(:get, endpoint, nil, headers)
     end
     
-    def ssl_post(url, data, headers = {})
-      ssl_request(:post, url, data, headers)
+    def ssl_post(endpoint, data, headers = {})
+      ssl_request(:post, endpoint, data, headers)
     end
     
     def socket_request(host, port, data)
@@ -58,6 +49,7 @@ module ActiveMerchant #:nodoc:
     end
     
     private
+    
     def retry_exceptions
       retries = MAX_RETRIES
       begin
@@ -73,6 +65,24 @@ module ActiveMerchant #:nodoc:
       end
     end
     
+    # original active_merchant version
+    def ssl_request(method, endpoint, data, headers = {})
+      connection = Connection.new(endpoint)
+      connection.open_timeout = open_timeout
+      connection.read_timeout = read_timeout
+      connection.retry_safe   = retry_safe
+      connection.verify_peer  = ssl_strict
+      connection.logger       = logger
+      connection.tag          = self.class.name
+      connection.wiredump_device = wiredump_device
+      
+      connection.pem          = @options[:pem] if @options
+      connection.pem_password = @options[:pem_password] if @options
+      
+      connection.request(method, data, headers)
+    end
+    
+    # Dan's version
     def ssl_request(method, url, data, headers = {})
       if method == :post
         # Ruby 1.8.4 doesn't automatically set this header
@@ -126,6 +136,6 @@ module ActiveMerchant #:nodoc:
         end
       end
     end
-        
+    
   end
 end
