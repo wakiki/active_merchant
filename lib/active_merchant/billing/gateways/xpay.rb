@@ -13,7 +13,9 @@ module ActiveMerchant #:nodoc:
         :void             => 'AUTHREVERSAL',
         :credit           => 'REFUND',
         :refund_reversal  => 'REFUNDREVERSAL',
-        :settlement       => 'SETTLEMENT'
+        :settlement       => 'SETTLEMENT',
+        :three_d_card_query => 'ST3DCARDQUERY',
+        :three_d_complete   => 'ST3DAUTH'
       }
       
       CREDIT_CARDS = {
@@ -103,10 +105,52 @@ module ActiveMerchant #:nodoc:
         
         commit(TRANSACTIONS[:purchase], money, post)        
       end
-    
+      
+      def three_d_card_query(money, creditcard, options = {})
+        post = {}
+        add_invoice(post, options)
+        add_creditcard(post, creditcard)        
+        add_address(post, creditcard, options)   
+        add_customer_data(post, options)
+        add_amount(post, money, options, 1)
+        add_3d_card_query(post, options)      
+             
+        commit(TRANSACTIONS[:three_d_card_query], money, post)
+      end
+      
+      def three_d_complete(money, creditcard, options={})
+        post = {}
+        add_invoice(post, options)
+        add_creditcard(post, creditcard)        
+        add_address(post, creditcard, options)   
+        add_customer_data(post, options)
+        add_amount(post, money, options, 1)
+        add_3d_complete(post, options)      
+             
+        commit(TRANSACTIONS[:three_d_complete], money, post)
+      end
+      
       private
       # ====
       # Operation blocks:
+      
+      def add_3d_complete(post, options)
+        post[:PaymentMethod][:ThreeDSecure] = {
+          :Enrolled       => options[:three_d_enrolled],
+          :PaRes          => options[:pa_res],
+          :MD             => options[:md]
+        }
+        post[:PaymentMethod][:CreditCard][:ParentTransactionReference] = options[:parent_transaction_reference]
+      end
+      
+      def add_3d_card_query(post, options)
+        post[:Operation][:TermUrl] = options[:term_url]
+        post[:Operation][:MerchantName] = options[:merchant_name]
+        
+        post[:CustomerInfo][:Accept] = options[:accept]
+        post[:CustomerInfo][:UserAgent] = options[:user_agent]
+      end
+      
       def add_refund(post, money)
         post[:Operation] = {
           :SiteReference                  => @@site_reference,
@@ -162,7 +206,7 @@ module ActiveMerchant #:nodoc:
         
         if [ CREDIT_CARDS[:switch], CREDIT_CARDS[:solo], CREDIT_CARDS[:maestro] ].
             include?(CREDIT_CARDS[creditcard.type.to_sym])
-          post[:PaymentMethod][:CreditCard][:Issue] = creditcard.verification_value
+          post[:PaymentMethod][:CreditCard][:Issue] = creditcard.issue_number
         else
           post[:PaymentMethod][:CreditCard][:SecurityCode] = creditcard.verification_value
         end

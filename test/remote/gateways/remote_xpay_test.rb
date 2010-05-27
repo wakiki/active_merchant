@@ -3,10 +3,10 @@ require File.dirname(__FILE__) + '/../../test_helper'
 class RemoteXpayTest < Test::Unit::TestCase
 
   def setup
-    @gateway = XPayGateway.new
+    @gateway = XpayGateway.new
     
-    @gateway.site_reference = "testwoobius12861"
-    @gateway.certificate_path = File.dirname(__FILE__) + '/../../testwoobius12861testcerts.pem'
+    @gateway.site_reference = "testvocalix14298"
+    @gateway.certificate_path = File.dirname(__FILE__) + '/../../testvocalix14298.pem'
     @gateway.host = 'localhost'
     @gateway.port = 5444
     
@@ -44,111 +44,123 @@ class RemoteXpayTest < Test::Unit::TestCase
 
     @responses = {}
   end
+  # 
+  # def test_successful_purchase
+  #   @credit_cards.each do |type, credit_card|
+  #     assert response = @gateway.purchase(@amount, credit_card, @options)
+  #     assert_success response
+  #     assert_equal "The transaction was processed successfully.", response.message
+  #   end
+  # end
+  # 
+  # def test_unsuccessful_purchase
+  #   @declined_credit_cards.each do |type, credit_card|
+  #     assert response = @gateway.purchase(@amount, credit_card, @options)
+  #     assert_failure response
+  #     assert_equal "The transaction was declined by the card issuer.", response.message
+  #   end
+  # end
+  # 
+  # def test_authorize_and_capture
+  #   @responses = {}
+  #   @credit_cards.each do |type, credit_card|
+  #     assert response = @gateway.authorize(@amount, credit_card, @options)
+  #     assert_success response
+  #     assert_equal "The transaction was processed successfully.", response.message
+  #     @responses[type] = response
+  #   end
+  #   sleep 5 # Needs to wait before checking results - if you get failures, try increasing this
+  #   @credit_cards.each do |type, credit_card|    
+  #     assert response = @gateway.capture(@amount, @responses[type].transaction_reference)
+  #     assert_success response
+  #     assert_equal "The transaction was processed successfully.", response.message
+  #   end
+  # end
+  # 
+  # def test_unsuccessful_capture
+  #   assert response = @gateway.capture(@amount, '')
+  #   assert_failure response
+  #   assert_equal "(5100) Missing TransactionReference", response.message
+  #   assert response = @gateway.capture(@amount, '123')
+  #   assert_failure response
+  #   assert_equal "(3100) Invalid ParentTransactionReference", response.message
+  # end
+  # 
+  # def test_authorize_and_void
+  #   @credit_cards.each do |type, credit_card|
+  #     assert response = @gateway.authorize(@amount, credit_card, @options)
+  #     assert_success response
+  #     assert_equal "The transaction was processed successfully.", response.message
+  #     @responses[type] = response
+  #   end
+  #   sleep 5 # Needs to wait before checking results - if you get failures, try increasing this
+  #   @credit_cards.each do |type, credit_card|
+  #     identification = {
+  #       :transaction_reference => @responses[type].transaction_reference,
+  #       :transaction_verifier => @responses[type].transaction_verifier
+  #     }
+  #     assert response = @gateway.void(identification)
+  #     assert_success response
+  #     assert_equal "The transaction was processed successfully.", response.message
+  #   end
+  # end
+  # 
+  # def test_authorize_and_capture_and_refund
+  #   @credit_cards.each do |type, credit_card|
+  #     assert response = @gateway.authorize(@amount, credit_card, @options)
+  #     assert_success response
+  #     assert_equal "The transaction was processed successfully.", response.message
+  #     @responses[type] = response
+  #   end
+  #   sleep 5 # Needs to wait before checking results - if you get failures, try increasing this
+  #   @credit_cards.each do |type, credit_card|
+  #     identification = {
+  #       :transaction_reference => @responses[type].transaction_reference,
+  #       :transaction_verifier => @responses[type].transaction_verifier
+  #     }
+  #     assert response = @gateway.capture(@amount, @responses[type].transaction_reference)
+  #     assert_success response
+  #     assert_equal "The transaction was processed successfully.", response.message
+  #   end
+  #   @credit_cards.each do |type, credit_card|
+  #     identification = {
+  #       :transaction_reference => @responses[type].transaction_reference,
+  #       :transaction_verifier => @responses[type].transaction_verifier
+  #     }
+  #     assert response = @gateway.credit(@amount, identification)
+  #     assert_success response
+  #     assert_equal "The transaction was processed successfully.", response.message
+  #   end
+  # end
+  # 
+  # def test_purchase_and_repeat
+  #   @credit_cards.each do |type, credit_card|
+  #     assert response = @gateway.purchase(@amount, credit_card, @options)
+  #     assert_success response
+  #     assert_equal "The transaction was processed successfully.", response.message
+  #     @responses[type] = response
+  #   end
+  #   @credit_cards.each do |type, credit_card|
+  #     identification = {
+  #       :transaction_reference => @responses[type].transaction_reference,
+  #       :transaction_verifier => @responses[type].transaction_verifier
+  #     }
+  #     assert response = @gateway.repeat(@amount, identification, @options)
+  #     assert_success response
+  #     assert_equal "The transaction was processed successfully.", response.message
+  #   end    
+  # end
   
-  def test_successful_purchase
-    @credit_cards.each do |type, credit_card|
-      assert response = @gateway.purchase(@amount, credit_card, @options)
+  def test_three_d_card_query
+    # Don't have amex
+    @credit_cards.except(:american_express).each do |type, credit_card|
+      assert response = @gateway.three_d_card_query(@amount, credit_card, @options)
+      puts type unless response.success?
+      puts type
+      puts response.to_xml
       assert_success response
-      assert_equal "The transaction was processed successfully.", response.message
-    end
-  end
-  
-  def test_unsuccessful_purchase
-    @declined_credit_cards.each do |type, credit_card|
-      assert response = @gateway.purchase(@amount, credit_card, @options)
-      assert_failure response
-      assert_equal "The transaction was declined by the card issuer.", response.message
-    end
-  end
-  
-  def test_authorize_and_capture
-    @responses = {}
-    @credit_cards.each do |type, credit_card|
-      assert response = @gateway.authorize(@amount, credit_card, @options)
-      assert_success response
-      assert_equal "The transaction was processed successfully.", response.message
       @responses[type] = response
-    end
-    sleep 5 # Needs to wait before checking results - if you get failures, try increasing this
-    @credit_cards.each do |type, credit_card|    
-      assert response = @gateway.capture(@amount, @responses[type].transaction_reference)
-      assert_success response
-      assert_equal "The transaction was processed successfully.", response.message
-    end
-  end
-  
-  def test_unsuccessful_capture
-    assert response = @gateway.capture(@amount, '')
-    assert_failure response
-    assert_equal "(5100) Missing TransactionReference", response.message
-    assert response = @gateway.capture(@amount, '123')
-    assert_failure response
-    assert_equal "(3100) Invalid ParentTransactionReference", response.message
-  end
-  
-  def test_authorize_and_void
-    @credit_cards.each do |type, credit_card|
-      assert response = @gateway.authorize(@amount, credit_card, @options)
-      assert_success response
-      assert_equal "The transaction was processed successfully.", response.message
-      @responses[type] = response
-    end
-    sleep 5 # Needs to wait before checking results - if you get failures, try increasing this
-    @credit_cards.each do |type, credit_card|
-      identification = {
-        :transaction_reference => @responses[type].transaction_reference,
-        :transaction_verifier => @responses[type].transaction_verifier
-      }
-      assert response = @gateway.void(identification)
-      assert_success response
-      assert_equal "The transaction was processed successfully.", response.message
-    end
-  end
-  
-  def test_authorize_and_capture_and_refund
-    @credit_cards.each do |type, credit_card|
-      assert response = @gateway.authorize(@amount, credit_card, @options)
-      assert_success response
-      assert_equal "The transaction was processed successfully.", response.message
-      @responses[type] = response
-    end
-    sleep 5 # Needs to wait before checking results - if you get failures, try increasing this
-    @credit_cards.each do |type, credit_card|
-      identification = {
-        :transaction_reference => @responses[type].transaction_reference,
-        :transaction_verifier => @responses[type].transaction_verifier
-      }
-      assert response = @gateway.capture(@amount, @responses[type].transaction_reference)
-      assert_success response
-      assert_equal "The transaction was processed successfully.", response.message
-    end
-    @credit_cards.each do |type, credit_card|
-      identification = {
-        :transaction_reference => @responses[type].transaction_reference,
-        :transaction_verifier => @responses[type].transaction_verifier
-      }
-      assert response = @gateway.credit(@amount, identification)
-      assert_success response
-      assert_equal "The transaction was processed successfully.", response.message
-    end
-  end
-  
-  def test_purchase_and_repeat
-    @credit_cards.each do |type, credit_card|
-      assert response = @gateway.purchase(@amount, credit_card, @options)
-      assert_success response
-      assert_equal "The transaction was processed successfully.", response.message
-      @responses[type] = response
-    end
-    @credit_cards.each do |type, credit_card|
-      identification = {
-        :transaction_reference => @responses[type].transaction_reference,
-        :transaction_verifier => @responses[type].transaction_verifier
-      }
-      assert response = @gateway.repeat(@amount, identification, @options)
-      assert_success response
-      assert_equal "The transaction was processed successfully.", response.message
-    end    
+    end  
   end
   
 end

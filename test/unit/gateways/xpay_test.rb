@@ -2,9 +2,15 @@ require File.dirname(__FILE__) + '/../../test_helper'
 
 class XpayTest < Test::Unit::TestCase
   def setup
+    @site_reference = "testvocalix14298"
+    XpayGateway.site_reference = @site_reference
+    XpayGateway.certificate_path = "/Users/Steve/work/insoshi/config/xpay/#{@site_reference}.pem"
+    XpayGateway.port = "5444"
+    XpayGateway.host = "localhost"
     @gateway = XpayGateway.new(
-                 :login => 'login',
-                 :password => 'password'
+                 :site_reference => @site_reference,
+                 :certificate_path => "/Users/Steve/work/insoshi/config/xpay/#{@site_reference}.pem",
+                 :debug => true
                )
 
     @credit_card = credit_card
