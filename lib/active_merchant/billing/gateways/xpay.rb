@@ -251,9 +251,9 @@ module ActiveMerchant #:nodoc:
       # Other methods:
       def commit(action, money, parameters)
         if @@debug
-          puts "request: #{post_data(action, parameters)}"
+          Rails.logger.info "request: #{post_data(action, parameters)}"
           r = XpayResponse.new socket_request @@host, @@port, post_data(action, parameters)
-          puts "response: #{r.to_xml}"
+          Rails.logger.info "response: #{r.to_xml}"
           r
         else
           XpayResponse.new socket_request @@host, @@port, post_data(action, parameters)
