@@ -38,7 +38,7 @@ module ActiveMerchant #:nodoc:
     def socket_request(host, port, data)
       retry_exceptions do
         begin
-          connection = TCPsocket.open host, port
+          connection = TCPSocket.open host, port
           
           connection.write data
           response = connection.read
