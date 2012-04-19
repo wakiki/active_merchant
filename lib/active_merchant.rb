@@ -20,17 +20,22 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #++
-                    
+
 $:.unshift File.dirname(__FILE__)
 
 require 'active_support'
 require 'active_support/core_ext/string/inflections'
 require 'active_support/core_ext/hash/indifferent_access'
-require 'active_support/core_ext/class/inheritable_attributes'
 require 'active_support/core_ext/class/attribute_accessors'
 require 'active_support/core_ext/class/delegating_attributes'
 require 'active_support/core_ext/module/attribute_accessors'
-require 'active_support/core_ext/kernel/requires'
+
+if Rails.version =~ /3\.2/
+  require 'active_support/core_ext/class/attribute'
+else
+  require 'active_support/core_ext/class/inheritable_attributes'
+  require 'active_support/core_ext/kernel/requires'
+end
 
 require 'builder'
 require 'cgi'
@@ -41,7 +46,7 @@ require 'active_merchant/billing'
 require 'active_merchant/version'
 
 module ActiveMerchant #:nodoc:
-  module Billing #:nodoc:    
+  module Billing #:nodoc:
     autoload :Integrations, 'active_merchant/billing/integrations'
   end
 end
