@@ -29,13 +29,7 @@ require 'active_support/core_ext/hash/indifferent_access'
 require 'active_support/core_ext/class/attribute_accessors'
 require 'active_support/core_ext/class/delegating_attributes'
 require 'active_support/core_ext/module/attribute_accessors'
-
-if Rails.version =~ /3\.2/
-  require 'active_support/core_ext/class/attribute'
-else
-  require 'active_support/core_ext/class/inheritable_attributes'
-  require 'active_support/core_ext/kernel/requires'
-end
+require 'active_support/core_ext/class/attribute'
 
 require 'builder'
 require 'cgi'

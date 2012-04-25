@@ -9,16 +9,16 @@ Gem::Specification.new do |s|
   s.email = 'tobi@leetsoft.com'
   s.homepage = 'http://activemerchant.org/'
   s.rubyforge_project = 'activemerchant'
-  
+
   s.files = Dir['CHANGELOG', 'README.rdoc', 'MIT-LICENSE', 'CONTRIBUTORS', 'gem-public_cert.pem', 'lib/**/*', 'vendor/**/*']
   s.require_path = 'lib'
-  
+
   s.has_rdoc = true
-  
-  s.add_dependency('activesupport', '>= 2.3.2')
-  s.add_dependency('builder', '>= 2.0.0')
-  s.add_dependency('braintree', '>= 2.0.0')
-  
+
+  s.add_dependency('activesupport', '>= 3.2.3')
+  s.add_dependency('builder', '>= 3.0.0')
+  # s.add_dependency('braintree', '>= 2.0.0')
+
   s.signing_key = ENV['GEM_PRIVATE_KEY']
   s.cert_chain  = ['gem-public_cert.pem']
 end
